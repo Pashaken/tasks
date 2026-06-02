@@ -1,0 +1,81 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Структура для хранения параметров атаки
+struct Attack {
+    int nbFire;
+    int x;
+    int y;
+    Attack(int n = 0, int _x = 0, int _y = 0) : nbFire(n), x(_x), y(_y) {}
+};
+
+// Сетка леса
+vector<vector<bool>> grid;
+
+// Функция подсчета огней в области
+int calcFireFrom(int i, int j, int nbArea) {
+    int nbFire = 0;
+    for (int k = 0; k < nbArea; k++) {
+        for (int l = 0; l < nbArea; l++) {
+            if (grid[i + k][j + l]) {
+                nbFire++;
+            }
+        }
+    }
+    return nbFire;
+}
+
+int main() {
+    int L, water;
+    if (!(cin >> L >> water)) return 0;
+
+    while (true) {
+        int N;
+        if (!(cin >> N)) break;
+
+        // Инициализируем сетку
+        grid.assign(L, vector<bool>(L, false));
+        for (int i = 0; i < N; i++) {
+            int fireX, fireY;
+            cin >> fireX >> fireY;
+            grid[fireY][fireX] = true; 
+        }
+
+        Attack attacks[3];
+
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < L; j++) {
+                // Проверка для Canadair
+                if (i + 2 < L && j + 2 < L) {
+                    int nbFireIn3x3 = calcFireFrom(i, j, 3);
+                    if (nbFireIn3x3 > attacks[0].nbFire) {
+                        attacks[0] = Attack(nbFireIn3x3, i, j);
+                    }
+                }
+                // Проверка для Helicopter
+                if (i + 1 < L && j + 1 < L) {
+                    int nbFireIn2x2 = calcFireFrom(i, j, 2);
+                    if (nbFireIn2x2 > attacks[1].nbFire) {
+                        attacks[1] = Attack(nbFireIn2x2, i, j);
+                    }
+                }
+                // Проверка для Smoke Jumpers
+                if (grid[i][j]) {
+                    attacks[2] = Attack(1, i, j);
+                }
+            }
+        }
+
+        if (attacks[0].nbFire > 5) {
+            cout << "C " << attacks[0].y << " " << attacks[0].x << endl;
+        } else if (attacks[1].nbFire > 1) {
+            cout << "H " << attacks[1].y << " " << attacks[1].x << endl;
+        } else {
+            cout << "J " << attacks[2].y << " " << attacks[2].x << endl;
+        }
+    }
+
+    return 0;
+}

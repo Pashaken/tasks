@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int h;
+    int w;
+    if (!(cin >> h >> w)) return 0;
+    cin.ignore();
+
+    //dp[i][j] - мин. число квадратов для i x j
+    vector<vector<int>> dp(h + 1, vector<int>(w + 1, 0));
+
+    for (int i = 1; i <= h; i++) {
+        for (int j = 1; j <= w; j++) {
+            if (i == j) {
+                dp[i][j] = 1;
+                continue;
+            }
+
+            // Инициализируем худшим случаем
+            int min_sq = i * j;
+
+            // Пробуем все возможные горизонтальные разрезы
+            for (int k = 1; k <= i / 2; k++) {
+                min_sq = min(min_sq, dp[k][j] + dp[i - k][j]);
+            }
+
+            // Пробуем все возможные вертикальные разрезы
+            for (int k = 1; k <= j / 2; k++) {
+                min_sq = min(min_sq, dp[i][k] + dp[i][j - k]);
+            }
+
+            dp[i][j] = min_sq;
+        }
+    }
+
+    // Вывод результата
+    cout << dp[h][w] << endl;
+
+    return 0;
+}
